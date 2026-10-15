@@ -1,0 +1,53 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(npm ci)",
+      "Bash(npm run build:cached)",
+      "Bash(npm run test:local:*)",
+      "Bash(npm run test:focused:*)",
+      "Bash(npm run test:changed)",
+      "Bash(npm run check:fast)",
+      "Bash(npm run check:changed)",
+      "Bash(npm run typecheck)",
+      "Bash(npm run lint)",
+      "Bash(npm run lint:fix)",
+      "Bash(npm run format)",
+      "Bash(npm run format:check)",
+      "Bash(npm run knip)",
+      "Bash(npm run docs:check)",
+      "Bash(npm run docs:generate)",
+      "Bash(npx --no-install vitest run:*)",
+      "Bash(npx --no-install oxfmt:*)",
+      "Bash(npx --no-install oxlint:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)"
+    ],
+    "deny": [
+      "Read(./website/.dev.vars*)",
+      "Read(./website/.env*)",
+      "Edit(./dist/**)",
+      "Edit(./skills/**)",
+      "Edit(./docs/public/product-catalog.json)",
+      "Edit(./docs/verification/managed-conformance-*.json)",
+      "Bash(git push --force:*)",
+      "Bash(git push -f:*)"
+    ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd \"$CLAUDE_PROJECT_DIR\" && node -e \"let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const f=JSON.parse(s).tool_input?.file_path;if(!f||!/\\.(c|m)?[jt]sx?$|\\.(json|md|ya?ml)$/.test(f))return;require('child_process').spawnSync('npx',['--no-install','oxfmt','--no-error-on-unmatched-pattern',f],{stdio:'ignore'});})\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  }
+}
